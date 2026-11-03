@@ -8,6 +8,7 @@
 ch03-stack-queue/
   expression_eval.c   # 中缀转后缀 + 后缀求值（栈的应用）
   circular_queue.c    # 队列 / 循环队列（两版并存，未完成版本存档）
+  palindrome.c        # 回文判断（栈的应用，未完成版本存档）
 ```
 
 ## 进度
@@ -16,7 +17,7 @@ ch03-stack-queue/
 |---|---|---|
 | 第 1 章 | 绪论 / 复杂度 | 待补 |
 | 第 2 章 | 线性表（顺序表、链表） | 待补 |
-| 第 3 章 | 栈和队列 | 进行中（expression_eval.c、circular_queue.c） |
+| 第 3 章 | 栈和队列 | 进行中（expression_eval.c、circular_queue.c、palindrome.c） |
 
 ## 当前工作：expression_eval.c
 
@@ -70,3 +71,32 @@ ch03-stack-queue/
 
 - 合并为一版循环队列：`InitQueue` / `EnQueue` / `DeQueue` / `GetFront` / `IsEmpty` / `IsFull`
 - 补 `main` 与测试用例：入队到满、连续出队、跨环回绕（`rear` 从 MAXSIZE-1 绕回 0）
+
+## 当前工作：palindrome.c
+
+回文判断（栈的应用）。先原样存档。
+
+### 逻辑核对：正确
+
+奇偶两条分支的边界都推演过，结果正确：
+
+- 偶数 `n=4`（`abba`）：`temp=2`，压入 `a b`，从下标 2 开始比较 `b a`，返回 1。
+- 奇数 `n=5`（`abcba`）：`temp=3`，压入前 `temp-1=2` 个字符 `a b`，从下标 3 开始比较 `b a`，正确跳过中间字符。
+
+### 已知问题
+
+编译层面：
+
+1. `Push` / `Pop` 未定义，也没有 `#include`，单独编译无法通过。
+2. 与 `expression_eval.c` 中的 `SqStack` 重复定义，两个文件不能直接一起编译（需要抽出公共头文件）。
+
+逻辑层面：
+
+3. 字符串长度超过 `MAXSIZE` 时没有保护，`Push` 返回 0 也没有检查，会越界写。
+4. `Push` 的返回值全部被忽略，栈满时后续比较会读到脏数据。
+5. 只用 `char` 比较，中文字符串（UTF-8 多字节）会被误判为回文/非回文。
+6. 空字符串 `n=0` 走偶数分支直接返回 1，语义上可接受，但最好显式说明。
+
+### 可优化点（考试可能追问）
+
+7. 本题用栈是 O(n) 时间 + O(n) 空间；若允许不用栈，双指针从两端向中间夹逼可以做到 O(1) 空间，面试常拿这个做对比。
