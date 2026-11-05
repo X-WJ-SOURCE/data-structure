@@ -5,6 +5,8 @@
 ## 目录结构
 
 ```
+ch02-linear-list/
+  seqlist_sorted_insert.c  # 顺序表有序插入（未完成版本存档）
 ch03-stack-queue/
   expression_eval.c   # 中缀转后缀 + 后缀求值（栈的应用）
   circular_queue.c    # 队列 / 循环队列（两版并存，未完成版本存档）
@@ -16,8 +18,36 @@ ch03-stack-queue/
 | 章节 | 内容 | 状态 |
 |---|---|---|
 | 第 1 章 | 绪论 / 复杂度 | 待补 |
-| 第 2 章 | 线性表（顺序表、链表） | 待补 |
+| 第 2 章 | 线性表（顺序表、链表） | 进行中（seqlist_sorted_insert.c） |
 | 第 3 章 | 栈和队列 | 进行中（expression_eval.c、circular_queue.c、palindrome.c） |
+
+## 当前工作：seqlist_sorted_insert.c
+
+顺序表 + 输入时保持有序插入。先原样存档。
+
+### 已知问题
+
+编译层面（下面四条都会导致编译失败）：
+
+1. `#define LIST_INIT_SIZE 20;` 宏定义末尾带了分号，展开后是 `malloc(sizeof(Elemtype)*20;)`，语法错误。`LISTINCREMENT 10;` 同理。
+2. 结构体定义的类型名是 `Sqlist`，函数签名里写的是 `SqList`（大写 L、少一个 `s`），类型未定义。
+3. `InitList(&L)`：`L` 本身已经是 `SqList *`，再取地址变成 `SqList **`，类型不匹配，应写 `InitList(L)`。
+4. 缺 `#include <stdio.h>`（`scanf`）、`#include <stdlib.h>`（`malloc`）；`malloc` 返回值也未检查。
+
+逻辑层面：
+
+5. `break` 写在 `if` 外面：循环只比较第 0 个元素就跳出，"找到比 `temp` 大的位置"这件事根本没有发生，插入位置永远是错的。
+6. 插入分支里已经执行过 `L->length++`，跳出后又会执行末尾的 `L->elem[L->length]=temp; L->length++;`，同一个元素被写两次、`length` 加两次。
+7. 正确做法应是：找到第一个 `L->elem[j] > temp` 的下标 `j`，整体后移一位并插入；若循环走完都没找到，说明 `temp` 最大，直接追加到末尾（不需要两套代码）。
+8. `LISTINCREMENT` 定义了却从未使用，`n > listsize`（默认 20）时 `L->elem[L->length]` 直接越界写。
+9. 没有 `main`，也没有输出逻辑，单独编译无法验证结果。
+
+### 后续计划
+
+- 修宏分号、统一类型名 `SqList`、改 `InitList(L)`
+- 重写 `CreatList`：单次定位 + 后移 + 插入，删除末尾的重复写入
+- 加上扩容：`n > listsize` 时 `realloc` 到 `listsize + LISTINCREMENT`
+- 补 `PrintList` 与 `main`，测试用例：递增输入、递减输入、含重复值、`n = 25`（触发扩容）
 
 ## 当前工作：expression_eval.c
 
