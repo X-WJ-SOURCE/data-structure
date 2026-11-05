@@ -1,11 +1,11 @@
 typedef int Elemtype;
-#define LIST_INIT_SIZE 20;
-#define LISTINCREMENT 10;
+#define LIST_INIT_SIZE 20
+#define LISTINCREMENT 10
 typedef struct List{
 	Elemtype *elem;
 	int length;
 	int listsize;
-}Sqlist; 
+}SqList; 
 void InitList(SqList *L)
 {
 	L->elem=(Elemtype*)malloc(sizeof(Elemtype)*LIST_INIT_SIZE);
@@ -14,10 +14,11 @@ void InitList(SqList *L)
 }
 void CreatList(SqList *L,int n)
 {
-	InitList(&L);
+	InitList(L);
 	for(int i=0;i<n;i++)
 	{
 		int temp;
+		int flag=0;
 		scanf("%d",&temp);
 		if(L->length==0)
 		{
@@ -35,10 +36,15 @@ void CreatList(SqList *L,int n)
 				}
 				L->elem[j]=temp;
 				L->length++;
+				flag=1;
+				break;
 			}
-			break;
 		}
-		L->elem[L->length]=temp;
-		L->length++;
+		if(flag==0)
+		{
+			L->elem[L->length]=temp;
+			L->length++;
+			
+		}
 	}
 }
